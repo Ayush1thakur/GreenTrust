@@ -5,7 +5,6 @@ import SignUpLogin from './pages/SignUpLogin';
 import Wallet from './pages/Wallet';
 import HomeAfterLogin from './pages/HomeAfterLogin';
 import AddResources from './components/AddRenewableSources'; // <-- import it
-import ExploreMarketplace from "./pages/ExploreMarketplace";
 
 function App() {
   return (
@@ -16,8 +15,6 @@ function App() {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/afterlogin" element={<HomeAfterLogin />} />
         <Route path="/addresources" element={<AddResources />} /> {/* <-- add route */}
-        <Route path="/marketplace" element={<ExploreMarketplace />} />
-
       </Routes>
     </Router>
   );

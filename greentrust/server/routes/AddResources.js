@@ -30,25 +30,4 @@ router.post("/add-source", verifyToken,async (req, res) => {
   }
 });
 
-// Get all renewable sources from all users
-router.get("/get-sources", async (req, res) => {
-  try {
-    const users = await User.find({ "renewableSources.0": { $exists: true } });
-
-    const allSources = users.flatMap(user =>
-      user.renewableSources.map(source => ({
-        ...source.toObject(),
-        ownerName: user.name,
-        ownerId: user._id
-      }))
-    );
-
-    res.json(allSources);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch renewable sources" });
-  }
-});
-
-
 module.exports = router;

@@ -6,8 +6,7 @@ const authRoutes = require('./routes/auth');
 const walletRoutes = require('./routes/walletRoutes');
 const userRoutes = require('./routes/AfterLogin'); 
 const addResource=require('./routes/AddResources');
-const sourceRoutes = require("./routes/sourceRoutes");
-const addResourcesRoute = require("./routes/AddResources");
+const weatherRoute = require('./routes/weather');
 
 dotenv.config();
 
@@ -32,10 +31,8 @@ app.use('/api/auth', authRoutes); // Use auth routes
 app.use('/api/wallet', walletRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/user', addResource);
-app.use("/api/user", sourceRoutes);
-app.use("/api/marketplace", require("./routes/marketplace"));
+app.use('/api', weatherRoute);
 
-app.use("/api/resources", addResourcesRoute);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

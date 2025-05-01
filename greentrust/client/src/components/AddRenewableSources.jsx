@@ -1,3 +1,4 @@
+// src/components/AddRenewableSource.jsx
 import { useState } from "react";
 
 function AddRenewableSource() {
@@ -13,27 +14,22 @@ function AddRenewableSource() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem("token");
-
+  
+    const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
+  
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/add-source`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`, // Send the token in the Authorization header
         },
-        body: JSON.stringify({
-          location: formData.location,
-          capacity: Number(formData.capacity),
-          output: Number(formData.output)
-        }),
+        body: JSON.stringify(formData),
       });
-
+  
       const data = await res.json();
       if (res.ok) {
         alert("Source added successfully!");
-        setFormData({ location: "", capacity: "", output: "" }); // Clear form
       } else {
         alert(data.error || "Failed to add source.");
       }
@@ -41,6 +37,7 @@ function AddRenewableSource() {
       console.error(error);
       alert("Error saving data.");
     }
+  
   };
 
   return (

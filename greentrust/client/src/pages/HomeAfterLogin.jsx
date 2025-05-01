@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/navbar';
 import '../style/HomeAfterLogin.css';
 import AddRenewableSource from '../components/AddRenewableSources.jsx';
-
+import EnergyInsights from '../components/EnergyPredictionInsight.jsx';
 
 const HomeAfterLogin = () => {
   const [userName, setUserName] = useState('');
   const [selectedOption, setSelectedOption] = useState('🖊️ Add Your Renewable Source');
   const [surplusEnergy, setSurplusEnergy] = useState(0);
   const [energyPrice, setEnergyPrice] = useState(null);
-  const [energyForecast, setEnergyForecast] = useState(null);
+  const [energyForecast, setEnergyForecast] = useState(null); // This will now be available to everyone
   const [earnings, setEarnings] = useState(0);
   const [greenScore, setGreenScore] = useState(0);
-  const [isProducer, setIsProducer] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userId');
@@ -25,9 +24,10 @@ const HomeAfterLogin = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Stored User:', storedUser);
+        console.log('Token:', token);
         const data = await res.json();
         setUserName(data.name);
-        setIsProducer(data.role === 'Producer');
       } catch (error) {
         console.error('Failed to fetch user:', error);
       }
@@ -39,24 +39,36 @@ const HomeAfterLogin = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch AI energy forecast or insights
-    if (isProducer) {
-      const fetchEnergyForecast = async () => {
-        try {
-          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/forecast-energy`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          });
-          const data = await res.json();
-          setEnergyForecast(data.forecast);
-        } catch (error) {
-          console.error('Failed to fetch energy forecast:', error);
+
+    const fetchEnergyForecast = async () => {
+      const token = localStorage.getItem('token');
+      console.log('Token used for forecast:', token);
+    
+      try {
+        const response = await fetch('http://localhost:5000/api/forecast-energy', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`API call failed: ${response.statusText}`);
         }
-      };
-      fetchEnergyForecast();
-    }
-  }, [isProducer]);
+    
+        const data = await response.json();
+        console.log('Energy Forecast Array:', data.forecast);
+        setEnergyForecast(data.forecast || []);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    
+
+    
+    
+    fetchEnergyForecast();
+  }, []); // Runs once when the component is mounted
 
   const handleWalletLink = () => {
     window.location.href = '/wallet';
@@ -90,21 +102,9 @@ const HomeAfterLogin = () => {
         case '🖊️ Add Your Renewable Source':
           return <AddRenewableSource />;
 
-      
       case '🧠 AI Forecast':
-        return (
-          <div className="card">
-            <h3>🧠 AI Forecast</h3>
-            <p>Shows expected energy production for the next 7 days.</p>
-            {energyForecast && (
-              <ul>
-                {energyForecast.map((day, index) => (
-                  <li key={index}>Day {index + 1}: {day} kWh</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        );
+        return <EnergyInsights energyForecast={energyForecast} />;
+
       case '📤 List Extra Energy for Sale':
         return (
           <div className="card">
@@ -133,24 +133,17 @@ const HomeAfterLogin = () => {
         return (
           <div className="card">
             <h3>🌞 AI-Powered Energy Insights</h3>
-            {isProducer ? (
-              <div>
-                <h4>Energy Production Prediction</h4>
-                <p>Get insights into your energy production for the next 7 days.</p>
-                {energyForecast && (
-                  <ul>
-                    {energyForecast.map((day, index) => (
-                      <li key={index}>Day {index + 1}: {day} kWh</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <div>
-                <h4>Best Time to Buy Energy</h4>
-                <p>Get recommendations on the best time to purchase energy based on market trends.</p>
-              </div>
-            )}
+            <div>
+              <h4>Energy Production Prediction</h4>
+              <p>Get insights into your energy production for the next 7 days.</p>
+              {energyForecast && (
+                <ul>
+                  {energyForecast.map((day, index) => (
+                    <li key={index}>Day {index + 1}: {day.predictedOutput} kWh</li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <h4>Tips to Reduce Energy Usage</h4>
             <p>Here are some tips to help you save energy and reduce costs:</p>
             <ul>
